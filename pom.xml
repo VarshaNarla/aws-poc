@@ -67,7 +67,14 @@
 			<version>11.1.1</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
-	</dependencies>
+	
+    <dependency>
+<groupId>com.mulesoft.modules</groupId>
+<artifactId>mule-secure-configuration-property-module</artifactId>
+<version>1.2.7</version>
+<classifier>mule-plugin</classifier>
+</dependency>
+</dependencies>
 
 	<repositories>
 		<repository>
