@@ -2,5 +2,29 @@
   "minMuleVersion": "4.8.0",
   "javaSpecificationVersions": [
     "17"
-  ]
+  ],
+  "configs": [
+    "global.xml",
+    "aws-poc.xml"
+  ],
+  "secureProperties": [
+    "aws.credentials.accessKey",
+    "aws.credentials.secretKey"
+  ],
+  "redeploymentEnabled": true,
+  "name": "aws-poc",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedResources": [
+        "properties/config.yaml",
+        "properties/secure.yaml",
+        "dwl/transform-aws-secret.dwl"
+      ]
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
 }
