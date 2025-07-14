@@ -1,33 +1,150 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+<mule
+	xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns:crypto="http://www.mulesoft.org/schema/mule/crypto"
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
 	xmlns:aws-secrets-manager-properties-override="http://www.mulesoft.org/schema/mule/aws-secrets-manager-properties-override"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/aws-secrets-manager-properties-override http://www.mulesoft.org/schema/mule/aws-secrets-manager-properties-override/current/mule-aws-secrets-manager-properties-override.xsd
 http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-	 
-	
-	<aws-secrets-manager-properties-override:config name="AWS_Secrets_Manager_Properties_Override_Config" doc:name="AWS Secrets Manager Properties Override Config" doc:id="e0920ac2-7a6d-4a47-82d8-e95f7bd9cfa8" >
-		<aws-secrets-manager-properties-override:basic-connection region="${aws.region}" accessKey="${secure::aws.credentials.accessKey}" secretKey="${secure::aws.credentials.secretKey}" />
-		<aws-secrets-manager-properties-override:role-connection roleARN="${aws.role.arn}" />
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/crypto http://www.mulesoft.org/schema/mule/crypto/current/mule-crypto.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
+	<crypto:jce-config name="jceConfig"
+		keystore="/Users/varshanarla/Documents/aws-poc/src/main/resources/aes-keystore.jceks"
+		password="storepass123" type="JCEKS">
+		<crypto:jce-key-infos>
+			<crypto:jce-symmetric-key-info
+				keyId="aeskey" alias="aeskey" password="keypass123" />
+		</crypto:jce-key-infos>
+	</crypto:jce-config>
+
+
+	<aws-secrets-manager-properties-override:config
+		name="AWS_Secrets_Manager_Properties_Override_Config"
+		doc:name="AWS Secrets Manager Properties Override Config"
+		doc:id="e0920ac2-7a6d-4a47-82d8-e95f7bd9cfa8">
+		<aws-secrets-manager-properties-override:basic-connection
+			region="${aws.region}"
+			accessKey="${secure::aws.credentials.accessKey}"
+			secretKey="${secure::aws.credentials.secretKey}" />
+		<aws-secrets-manager-properties-override:role-connection
+			roleARN="${aws.role.arn}" />
 	</aws-secrets-manager-properties-override:config>
-	<!-- <salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="ef867f12-1347-47f1-a59c-f03100a856a0">
-    	<salesforce:oauth-user-pass-connection consumerKey="3MVG9rZjd7MXFdLhE7ZdJYNBQkzGIsyHN1kol7yae1QFLswdnemrr.6vdtYKgU9BxFaXBEBDjKL77twEAJccJ" consumerSecret="F46566C647D05646290994B09D3C7A97C0EB438D3EE2F4B72B93535DC4795638" username="varsha.narla915@agentforce.com" password="Padmavathi@24nWNBQ2MGDlNGFo8oOF01C5uD" tokenEndpoint="https://test.salesforce.com/services/oauth2/token" securityToken="nWNBQ2MGDlNGFo8oOF01C5uD" />
-    </salesforce:sfdc-config> -->
-	<flow name="aws-secrets-retrieval-flow" doc:id="b8e533d8-7818-4774-a689-8f04ad07d359" >
-		<scheduler doc:name="AWS Secrets Scheduler" doc:id="93382581-45a1-44f7-b27a-db1cc564aaac" >
-			<scheduling-strategy >
-				<fixed-frequency frequency="${scheduler.frequency}" timeUnit="SECONDS"/>
+	<!-- <salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce 
+		Config" doc:id="ef867f12-1347-47f1-a59c-f03100a856a0">      <salesforce:oauth-user-pass-connection 
+		consumerKey="3MVG9rZjd7MXFdLhE7ZdJYNBQkzGIsyHN1kol7yae1QFLswdnemrr.6vdtYKgU9BxFaXBEBDjKL77twEAJccJ" 
+		consumerSecret="F46566C647D05646290994B09D3C7A97C0EB438D3EE2F4B72B93535DC4795638" 
+		username="varsha.narla915@agentforce.com" password="Padmavathi@24nWNBQ2MGDlNGFo8oOF01C5uD" 
+		tokenEndpoint="https://test.salesforce.com/services/oauth2/token" securityToken="nWNBQ2MGDlNGFo8oOF01C5uD" 
+		/>    </salesforce:sfdc-config> -->
+	<flow name="aws-secrets-retrieval-flow"
+		doc:id="b8e533d8-7818-4774-a689-8f04ad07d359">
+		<scheduler doc:name="AWS Secrets Scheduler"
+			doc:id="93382581-45a1-44f7-b27a-db1cc564aaac">
+			<scheduling-strategy>
+				<fixed-frequency frequency="${scheduler.frequency}"
+					timeUnit="SECONDS" />
 			</scheduling-strategy>
 		</scheduler>
-		<logger level="INFO" doc:name="Start Logger" doc:id="e66b9ef3-784c-4624-afaa-2cebfa9a35e2" message='#["Starting AWS Secrets retrieval flow"]'/>
-		<set-variable value="${aws.secrets.firstSecret}" doc:name="Set Secret Variable" doc:id="fd8943cb-53ef-4cf2-9ec6-bd18a669f4e5" variableName="key"/>
-		<ee:transform doc:name="Transform AWS Secret" doc:id="81f66b3a-e79f-495f-a289-9715c43bff55">
+		<logger level="INFO" doc:name="Start Logger"
+			doc:id="e66b9ef3-784c-4624-afaa-2cebfa9a35e2"
+			message='#["Starting AWS Secrets retrieval flow"]' />
+		<set-variable value="${aws-secrets::firstSecret}"
+
+
+			doc:name="Set Secret Variable"
+			doc:id="fd8943cb-53ef-4cf2-9ec6-bd18a669f4e5" variableName="key" />
+		<ee:transform doc:name="Transform AWS 
+			Secret" doc:id="81f66b3a-e79f-495f-a289-9715c43bff55"> <ee:message> <ee:set-payload 
+			resource="dwl/transform-aws-secret.dwl" /> </ee:message> </ee:transform>
+		<logger level="INFO" doc:name="Result Logger"
+			doc:id="219d9269-4843-416f-9495-f8c94e80b855" message="#[payload]" />
+	</flow>
+	<flow name="aws-secrets-retrieval-decrypt-jce-flow"
+		doc:id="df2ce02e-7916-4a55-833f-a21a4b3e47c8">
+		<scheduler doc:name="AWS Secrets Scheduler"
+			doc:id="e52b2b0b-34c9-445f-b62f-97bdc7d815fc">
+			<scheduling-strategy>
+				<fixed-frequency frequency="${scheduler.frequency}"
+					timeUnit="SECONDS" />
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="Start Logger"
+			doc:id="c6b2d7b8-1e4b-4a9c-aded-72428894cf23"
+			message='#["Starting AWS Secrets retrieval flow"]' />
+		<crypto:jce-encrypt doc:name="Jce encrypt"
+			doc:id="9101b23f-4040-4ac4-87d6-5fe1cfb27c57" config-ref="jceConfig"
+			algorithm="AES" keyId="aeskey" outputMimeType="application/java">
+			<crypto:content><![CDATA[#["test"]]]></crypto:content>
+		</crypto:jce-encrypt>
+		<ee:transform doc:name="Transform Message"
+			doc:id="cde1a9de-4141-4fc4-a943-dcc98701bdd9">
 			<ee:message>
-				<ee:set-payload resource="dwl/transform-aws-secret.dwl" />
+				<ee:set-payload><![CDATA[ %dw 2.0
+output application/json
+import toBase64 from dw::core::Binaries
+---
+toBase64(payload)]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="Result Logger" doc:id="219d9269-4843-416f-9495-f8c94e80b855" message="#['Retrieved AWS Secret Key: ' ++ payload.s3Key]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="4119baec-9f68-413b-98fe-e8305c2528be" message="#[payload]" />
+		<crypto:jce-decrypt config-ref="jceConfig"
+			algorithm="AES" keyId="aeskey" doc:name="Decrypt">
+			<crypto:content ><![CDATA[#[%dw 2.0
+output application/java
+import fromBase64 from dw::core::Binaries
+---
+fromBase64(read(p("aws-secrets::firstSecret"), "application/json").firstSecretKey)]]]></crypto:content>
+		</crypto:jce-decrypt>
+		<logger level="INFO" doc:name="Result Logger"
+			doc:id="17fe0583-af3d-4ca2-b84a-b2cc092c2af9" message="#[payload]" />
+	</flow>
+	<flow name="aws-secrets-retrieval-decrypt-pde-flow"
+		doc:id="8e9554e8-977c-461c-88ec-a113c2efce48">
+		<scheduler doc:name="AWS Secrets Scheduler"
+			doc:id="2e75b91a-f416-4c83-9266-0c56d3cc731e">
+			<scheduling-strategy>
+				<fixed-frequency frequency="${scheduler.frequency}"
+					timeUnit="SECONDS" />
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="Start Logger"
+			doc:id="cf0a8dd0-53b3-49ec-99f7-107c6d4a7a3e"
+			message='#["Starting AWS Secrets retrieval flow"]' />
+		<crypto:jce-encrypt-pbe doc:name="Jce encrypt pbe" doc:id="08fecae7-7ec3-4c60-8769-264a9e12cd6e" password="nEM01DaNdNVu7e9GGUKDKnTfbXb2HP5g" passwordSalt="aabbccddeeff0011" iterationCount="65536">
+			<crypto:content ><![CDATA[#["MyStrongPassword123!"]]]></crypto:content>
+		</crypto:jce-encrypt-pbe>
+		<ee:transform doc:name="Transform Message" doc:id="fea03d6d-d7eb-44bf-a0d4-4b7c8251e394">
+			<ee:message>
+				<ee:set-payload><![CDATA[ %dw 2.0
+output application/json
+import toBase64 from dw::core::Binaries
+---
+toBase64(payload)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="d81c93e3-2cc9-49a5-9d98-75617c2023b5" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="c31097e9-a363-4847-bab1-73726431a081" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[Mule::lookup("aws-pocFlow", read(p("aws-secrets::firstSecret"), "application/json").jcepbe)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="58117f57-4059-440a-a026-98cfb7f19dcc" message="#[payload]"/>
+	</flow>
+	<flow name="aws-pocFlow" doc:id="5e05a4ab-49f8-41b3-a74f-32f1f14a4d16" >
+		<crypto:jce-decrypt-pbe doc:name="Jce decrypt pbe" doc:id="6785fd37-8548-40ec-ac5b-710cdf897b87" password="MyStrongPassword123!" passwordSalt="aabbccddeeff0011" iterationCount="65536">
+			<crypto:content><![CDATA[#[%dw 2.0
+output application/java
+import fromBase64 from dw::core::Binaries
+---
+fromBase64(payload)]]]></crypto:content>
+		</crypto:jce-decrypt-pbe>
 	</flow>
 </mule>

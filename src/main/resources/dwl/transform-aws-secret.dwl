@@ -2,6 +2,6 @@
 output application/json
 ---
 {
-  s3Key: read(p("aws.secrets.firstSecret"), "application/json").firstSecretKey,
+  s3Key: read(p("aws-secrets::firstSecret"), "application/json").firstSecretKey,
   message: "Using secret from AWS"
 }

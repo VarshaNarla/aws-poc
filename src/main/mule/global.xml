@@ -8,6 +8,6 @@
 http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
 
 	<configuration-properties doc:name="Configuration Properties" doc:id="a9d38c3c-f2b4-4c65-b8f7-d0a29c70616c" file="properties/config.yaml" />
-	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="b9d38c3c-f2b4-4c65-b8f7-d0a29c70616c" file="properties/secure.yaml" key="mulesoft1234567890" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="b9d38c3c-f2b4-4c65-b8f7-d0a29c70616c" file="properties/secure.yaml" key="MuleSoftAESKey12" />
 	
 </mule>

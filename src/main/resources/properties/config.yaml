@@ -3,8 +3,6 @@ aws:
   region: "eu-north-1"
   role:
     arn: "arn:aws:iam::614965294934:role/testSecretRole"
-  secrets:
-    firstSecret: '{"firstSecretKey": "test-secret-value"}'
 
 scheduler:
   frequency: "5"
